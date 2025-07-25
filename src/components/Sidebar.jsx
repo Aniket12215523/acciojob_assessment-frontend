@@ -118,7 +118,7 @@ const Sidebar = () => {
               sessions.map((session) => (
                 <li key={session._id} className="flex items-center justify-between group">
                   <Link
-                    href={`/chat/${session._id}`}
+                    href={`/chat/${session.sessionId}`}
                     className="text-sm text-gray-800 hover:underline truncate max-w-[80%]"
                   >
                     {getSessionTitle(session)}
