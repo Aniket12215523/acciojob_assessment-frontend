@@ -91,7 +91,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      <h2 className="mt-8 text-lg font-semibold">Your Sessions</h2>
+      {/* <h2 className="mt-8 text-lg font-semibold">Your Sessions</h2>
       <ul className="mt-2 space-y-2">
         {sessions.map((s) => (
           <li
@@ -113,7 +113,7 @@ export default function Dashboard() {
             </button>
           </li>
         ))}
-      </ul>
+      </ul> */}
     </ChatLayout>
   );
 }

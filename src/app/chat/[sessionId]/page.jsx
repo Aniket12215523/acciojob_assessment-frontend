@@ -29,30 +29,38 @@ export default function ChatPage() {
     };
     fetchHistory();
   }, [sessionId]);
+const handleSend = async (messageObj) => {
+  const { message, file } = messageObj;
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    const userMsg = { sender: 'user', message: input.trim() };
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
-    setInput('');
-    setLoading(true);
-
-    try {
-      const res = await api.post('/chat/send', {
-        sessionId,
-        message: input.trim(),
-        selectedModel,
-         userId: user._id,
-      });
-      setMessages(res.data.history);
-    } catch (err) {
-      console.error('Send failed:', err);
-    } finally {
-      setLoading(false);
-    }
+  const userMessage = {
+    sender: 'user',
+    message: message, // e.g. "📄 filename.pdf"
+    ...(file ? { file } : {}),
   };
+
+  const updatedMessages = [...messages, userMessage];
+  setMessages(updatedMessages);
+  setInput('');
+  setLoading(true);
+
+  try {
+    // If the file has content, send it instead of the label (e.g. "📄 filename")
+    const payload = {
+      sessionId,
+      message: file?.content || message, 
+      selectedModel,
+      userId: user._id,
+    };
+
+    const res = await api.post('/chat/send', payload);
+    setMessages(res.data.history);
+  } catch (err) {
+    console.error('Send failed:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="flex h-screen">
