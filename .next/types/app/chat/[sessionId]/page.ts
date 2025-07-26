@@ -1,4 +1,4 @@
-// File: C:\Users\91799\OneDrive\Desktop\acciojob assesment\component-crafter\frontend\src\app\chat\[sessionId]\page.jsx
+// File: D:\acciojob assesment\component-crafter\frontend\src\app\chat\[sessionId]\page.jsx
 import * as entry from '../../../../../src/app/chat/[sessionId]/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

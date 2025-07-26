@@ -13,7 +13,7 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim()) {
-      onSend({ message: input, sender: 'user' });
+      onSend({ message: input.trim(), sender: 'user' });
       setInput('');
     }
   };
@@ -22,28 +22,44 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
     const files = e.target.files;
     if (!files.length) return;
 
-    const formData = new FormData();
     Array.from(files).forEach((file) => {
-      formData.append('files', file);
+      const previewUrl = URL.createObjectURL(file);
+      const filePreview = {
+        name: file.name,
+        url: previewUrl,
+        mimetype: file.type,
+      };
+
+      onSend({
+        message: `📄 ${file.name}`,
+        sender: 'user',
+        file: filePreview,
+      });
     });
+
+    const formData = new FormData();
+    Array.from(files).forEach((file) => formData.append('files', file));
 
     try {
       const res = await api.post('/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      console.log('Upload success:', res.data);
-
       for (const uploaded of res.data.files) {
+        const isVideo = uploaded.mimetype?.startsWith('video/');
+        const frames = isVideo && uploaded.content
+          ? uploaded.content.split('\n').filter((line) => line.trim().length > 0)
+          : null;
+
         onSend({
           message: `📄 ${uploaded.originalname}`,
           sender: 'user',
           file: {
             name: uploaded.originalname,
             url: uploaded.url,
-            content: uploaded.content || null,
+            mimetype: uploaded.mimetype,
+            content: uploaded.content,
+            frames,
           },
         });
       }
@@ -57,14 +73,20 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
   };
 
   return (
-    <div className="w-full border-t border-gray-200 bg-white px-4 py-2">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <div className="w-full border-t border-gray-300 bg-white px-4 py-3 md:px-6 sticky bottom-0 z-10 shadow-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2 flex-wrap sm:flex-nowrap"
+      >
         {/* Upload Button */}
-        <button type="button" className="text-gray-500 hover:text-gray-800" onClick={triggerFileUpload}>
-          <FiPlus size={20} />
+        <button
+          type="button"
+          className="p-2 rounded-full hover:bg-gray-200 transition"
+          onClick={triggerFileUpload}
+          title="Upload"
+        >
+          <FiPlus size={20} className="text-gray-600" />
         </button>
-
-        {/* Hidden File Input */}
         <input
           type="file"
           ref={fileInputRef}
@@ -79,32 +101,36 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
           type="text"
           value={input ?? ''}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Send a message"
-          className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Type your message..."
+          className="flex-grow min-w-[50%] rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        {/* Voice Recorder Toggle */}
+        {/* Mic Button */}
         <button
           type="button"
-          className="text-gray-500 hover:text-gray-800"
+          className="p-2 rounded-full hover:bg-gray-200 transition"
           onClick={() => setShowRecorder(!showRecorder)}
+          title="Record voice"
         >
-          <FiMic size={20} />
+          <FiMic size={20} className="text-gray-600" />
         </button>
 
         {/* Send Button */}
         <button
           type="submit"
           disabled={loading}
-          className={`text-blue-600 hover:text-blue-800 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`p-2 rounded-full hover:bg-blue-100 transition ${
+            loading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          title="Send"
         >
-          <FiSend size={20} />
+          <FiSend size={20} className="text-blue-600" />
         </button>
       </form>
 
-      {/* Recorder Component */}
+      {/* Voice Recorder */}
       {showRecorder && (
-        <div className="mt-2">
+        <div className="mt-2 bg-gray-100 p-3 rounded-md">
           <VoiceRecorder onText={setInput} />
         </div>
       )}
