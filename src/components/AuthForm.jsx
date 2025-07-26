@@ -27,7 +27,7 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 to-indigo-200 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br  flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 transition-all duration-300 animate-fade-in">
         <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
           {isRegister ? 'Create Account' : 'Welcome Back'}
