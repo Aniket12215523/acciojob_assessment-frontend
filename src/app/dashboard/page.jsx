@@ -9,7 +9,7 @@ export default function Dashboard() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [sessions, setSessions] = useState([]);
-  const [model, setModel] = useState('gemma-7b-it'); 
+  const [model, setModel] = useState('gemma-7b-it');
   const [name, setName] = useState('');
 
   useEffect(() => {
@@ -18,7 +18,6 @@ export default function Dashboard() {
       router.push('/');
       return;
     }
-
     fetchSessions();
   }, [user, loading]);
 
@@ -37,7 +36,7 @@ export default function Dashboard() {
 
     try {
       const res = await api.post('/sessions/new', payload);
-      await fetchSessions(); 
+      await fetchSessions();
       router.push(`/chat/${res.data.sessionId}`);
     } catch (err) {
       console.error("Session creation failed:", err);
@@ -46,7 +45,6 @@ export default function Dashboard() {
 
   const deleteSession = async (id) => {
     if (!confirm('Are you sure you want to delete this session?')) return;
-
     try {
       await api.delete(`/sessions/${id}`);
       setSessions((prev) => prev.filter((s) => s._id !== id));
@@ -62,58 +60,38 @@ export default function Dashboard() {
       onNewChat={createSession}
       selectedModel={model}
       setSelectedModel={setModel}
-      setSessions={setSessions} 
+      setSessions={setSessions}
     >
-      <h1 className="text-xl font-bold">Welcome to AI Dashboard</h1>
+      <div className="w-full min-h-screen px-4 sm:px-6 py-8 bg-gradient-to-br from-slate-50 to-slate-200 animate-fade-in duration-700">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center animate-slide-in-down mt-16 sm:mt-0">
+        Welcome to your AI Dashboard
+        </h1>
 
-      <div className="mt-4 flex gap-2">
-        <input
-          placeholder="Session Name"
-          onChange={(e) => setName(e.target.value)}
-          className="border p-2"
-          value={name}
-        />
-        <select
-          onChange={(e) => setModel(e.target.value)}
-          value={model}
-          className="border p-2"
-        >
-          <option value="groq/gemma-7b-it">Gemma-7B-IT</option>
-          <option value="groq/llama3-8b-8192">LLaMA3-8B</option>
-          <option value="groq/llama3-70b-8192">LLaMA3-70B</option>
-          <option value="groq/mixtral-8x7b-32768">Mixtral-8x7B</option>
-        </select>
-        <button
-          onClick={createSession}
-          className="bg-blue-500 text-white px-4 py-2"
-        >
-          Create Session
-        </button>
-      </div>
-
-      {/* <h2 className="mt-8 text-lg font-semibold">Your Sessions</h2>
-      <ul className="mt-2 space-y-2">
-        {sessions.map((s) => (
-          <li
-            key={s._id}
-            className="flex justify-between items-center border p-2 rounded-md hover:bg-gray-100 transition-all"
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-white p-4 sm:p-6 rounded-xl shadow-md animate-slide-in-up">
+          <input
+            placeholder="Session Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full sm:flex-1 rounded-lg border border-gray-300 px-4 py-2 shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+          />
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            className="w-full sm:w-auto rounded-lg border border-gray-300 px-4 py-2 bg-white shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
           >
-            <span
-              className="cursor-pointer flex-1"
-              onClick={() => router.push(`/chat/${s._id}`)}
-            >
-              {s.name || 'Untitled'} <span className="text-sm text-gray-500">({s.model})</span>
-            </span>
-            <button
-              onClick={() => deleteSession(s._id)}
-              className="text-red-500 hover:text-red-700 px-2"
-              title="Delete"
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-      </ul> */}
+            <option value="gemma-7b-it">Gemma-7B-IT</option>
+            <option value="groq/llama3-8b-8192">LLaMA3-8B</option>
+            <option value="groq/llama3-70b-8192">LLaMA3-70B</option>
+            <option value="groq/mixtral-8x7b-32768">Mixtral-8x7B</option>
+          </select>
+          <button
+            onClick={createSession}
+            className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-2 rounded-lg shadow-md hover:scale-105 transform transition-all duration-200"
+          >
+            + Create Session
+          </button>
+        </div>
+      </div>
     </ChatLayout>
   );
 }

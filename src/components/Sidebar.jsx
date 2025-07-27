@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
@@ -7,12 +7,14 @@ import ModelSelector from './ModelSelector';
 import Link from 'next/link';
 import { FiMenu, FiX } from 'react-icons/fi';
 
-const Sidebar = () => {
+const Sidebar = ({ selectedModel, setSelectedModel }) => {
   const { user, token } = useAuth();
   const router = useRouter();
   const [sessions, setSessions] = useState([]);
-  const [selectedModel, setSelectedModel] = useState('gemma-7b-it');
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const listRef = useRef([]);
 
   const fetchSessions = async () => {
     if (!user?._id || !token) return;
@@ -35,19 +37,13 @@ const Sidebar = () => {
     try {
       const res = await api.post(
         '/sessions/new',
-        {
-          name: 'New Chat',
-          userId: user._id,
-          model: selectedModel || 'groq',
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { name: 'New Chat', userId: user._id, model: selectedModel || 'groq' },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       const sessionId = res.data.sessionId;
       await fetchSessions();
       router.push(`/chat/${sessionId}`);
-      setIsOpen(false); 
+      setIsOpen(false);
     } catch (err) {
       console.error('Failed to create new chat:', err);
       alert('Failed to create new chat');
@@ -72,8 +68,47 @@ const Sidebar = () => {
     return session.model || `Session ${session._id.slice(-4)}`;
   };
 
+  const highlightMatch = (text) => {
+    if (!searchQuery) return text;
+    const regex = new RegExp(`(${searchQuery})`, 'gi');
+    return text.split(regex).map((part, i) =>
+      part.toLowerCase() === searchQuery.toLowerCase() ? (
+        <mark key={i} className="bg-yellow-200 text-black rounded px-1">{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+
+  const filteredSessions = sessions.filter((session) => {
+    const title = getSessionTitle(session);
+    const content = session.messages?.map((msg) => msg.message).join(' ') || '';
+    return (
+      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
+  const handleKeyDown = (e) => {
+    if (!filteredSessions.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev + 1) % filteredSessions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev - 1 + filteredSessions.length) % filteredSessions.length);
+    } else if (e.key === 'Enter') {
+      const selected = filteredSessions[activeIndex];
+      if (selected) {
+        router.push(`/chat/${selected.sessionId}`);
+        setIsOpen(false);
+      }
+    }
+  };
+
   return (
     <>
+      {/* Toggle Button */}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -84,10 +119,11 @@ const Sidebar = () => {
         </button>
       </div>
 
-      
+      {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white border-r p-4 shadow-lg z-40 transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:w-1/5 md:min-w-[250px] md:block overflow-y-auto`}
+        className={`fixed top-0 left-0 h-screen w-64 bg-white border-r p-4 shadow-lg z-40 transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:translate-x-0 md:static md:block md:min-h-screen overflow-y-auto`}
       >
         <div className="flex flex-col justify-between h-full">
           <div>
@@ -100,49 +136,51 @@ const Sidebar = () => {
 
             <input
               type="text"
-              placeholder="Search Chats..."
-              className="w-full px-3 py-1 mb-4 border rounded-md text-sm"
-              disabled
+              placeholder="Search chats..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setActiveIndex(0);
+              }}
+              onKeyDown={handleKeyDown}
+              className="w-full px-3 py-1.5 rounded-md bg-white border border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
             />
 
-            <div className="mb-4">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                Library
-              </h2>
+            <div className="mb-4 mt-4">
+              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Library</h2>
               <div className="text-gray-600 text-sm italic">Coming soon</div>
             </div>
 
             <div className="mb-4">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                Model
-              </h2>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Model</h2>
               <ModelSelector
                 selectedModel={selectedModel}
-                setSelectedModel={setSelectedModel}
+                onModelChange={setSelectedModel}
               />
             </div>
 
             <div>
-              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                Recent Chats
-              </h2>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Recent Chats</h2>
               <ul className="space-y-2">
-                {sessions.length > 0 ? (
-                  sessions.map((session) => (
+                {filteredSessions.length > 0 ? (
+                  filteredSessions.map((session, idx) => (
                     <li
                       key={session._id}
-                      className="flex items-center justify-between group"
+                      ref={(el) => (listRef.current[idx] = el)}
+                      className={`group bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md px-3 py-2 flex items-center justify-between transition duration-200 shadow-sm ${
+                        idx === activeIndex ? 'ring-2 ring-indigo-400' : ''
+                      }`}
                     >
                       <Link
                         href={`/chat/${session.sessionId}`}
-                        className="text-sm text-gray-800 hover:underline truncate max-w-[80%]"
-                        onClick={() => setIsOpen(false)} // close sidebar on mobile click
+                        className="text-sm text-gray-800 font-medium truncate max-w-[85%] group-hover:text-indigo-600"
+                        onClick={() => setIsOpen(false)}
                       >
-                        {getSessionTitle(session)}
+                        {highlightMatch(getSessionTitle(session))}
                       </Link>
                       <button
                         onClick={() => handleDeleteSession(session._id)}
-                        className="text-red-500 hover:text-red-700 text-xs hidden group-hover:block"
+                        className="text-gray-400 hover:text-red-500 text-xs transition-opacity duration-150 opacity-0 group-hover:opacity-100"
                         title="Delete"
                       >
                         ✕
