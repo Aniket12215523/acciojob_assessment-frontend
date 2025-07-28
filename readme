@@ -1,0 +1,83 @@
+# 🤖 AI Chat Application - Frontend
+
+This is the frontend for a modern, responsive AI Chat Application built with **Next.js** and **Tailwind CSS**. It provides a clean user interface for interacting with an AI, managing chat history, and authenticating users.
+
+**Live Demo:** [https://acciojob-assessment-frontend.vercel.app/](https://acciojob-assessment-frontend.vercel.app/)
+
+![Home page/login/register Screenshot](assets/chat-interface.png)
+![Dashboard page Screenshot](assets/home-page.png)
+![Chat Interface Screenshot](assets/dashboard.png)
+
+
+---
+
+## ✨ Features
+
+-   **User Authentication**: Secure sign-up and login functionality.
+-   **Intuitive Chat Interface**: A clean and familiar UI for sending and receiving messages.
+-   **Session Management**: View past conversations in a sidebar, create new chats, and switch between them.
+-   **Search History**: Quickly find previous chats from the sidebar.
+-   **Real-time Responses**: Messages from the AI are streamed for a dynamic experience.
+-   **Mobile-Friendly**: Fully responsive design that works beautifully on all screen sizes.
+-   **File Uploads**: Supports uploading documents (PDF, Word) and images to provide context to the AI. (As per architecture)
+
+---
+
+## 🛠️ Tech Stack
+
+-   **Framework**: [Next.js](https://nextjs.org/) 14 (with App Router)
+-   **UI Library**: [React.js](https://react.dev/)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+-   **State Management**: React Context
+-   **Deployment**: [Vercel](https://vercel.com/)
+
+---
+
+## 🚀 Getting Started
+
+Follow these instructions to set up and run the project locally.
+
+### Prerequisites
+
+-   [Node.js](https://nodejs.org/en) (v18.x or newer)
+-   `npm` or `yarn`
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```sh
+    git clone [https://github.com/Aniket12215523/acciojob_assessment-frontend.git](https://github.com/Aniket12215523/acciojob_assessment-frontend.git)
+    cd acciojob_assessment-frontend
+    ```
+
+2.  **Install dependencies:**
+    ```sh
+    npm install
+    # OR
+    yarn install
+    ```
+
+3.  **Set up environment variables:**
+    Create a new file named `.env.local` in the root of your project and add the following variable. This should point to your backend server's URL.
+
+    ```env
+    # .env.local
+
+    NEXT_PUBLIC_BACKEND_API_URL=https://acciojob-assessment-backend.onrender.com/api
+
+    ```
+
+4.  **Run the development server:**
+    ```sh
+    npm run dev
+    # OR
+    yarn dev
+    ```
+
+The application should now be running at [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 📦 Deployment
+
+This application is optimized for deployment on **Vercel**. Simply link your GitHub repository to a new Vercel project, and it will be deployed automatically on every push to the `main` branch. Remember to set the environment variables in the Vercel project settings.
