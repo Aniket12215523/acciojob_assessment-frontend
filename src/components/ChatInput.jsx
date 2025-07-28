@@ -114,7 +114,7 @@ useEffect(() => {
         {/* Text Input */}
         <input
           type="text"
-          ref={inputFieldRef}
+            ref={inputFieldRef}
           value={input ?? ''}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
