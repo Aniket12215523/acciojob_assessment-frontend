@@ -69,13 +69,14 @@ const handleSend = async (messageObj) => {
         setSelectedModel={setSelectedModel}
       />
       <div className="flex flex-col flex-1 p-4 overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
-          <ChatMessages messages={messages} />
-        </div>
+       <div className="flex-1 overflow-y-auto pb-28 md:pb-4">
+      <ChatMessages messages={messages} />
+      </div>
+
         <ChatInput
           input={input}
           setInput={setInput}
-          onSend={handleSend}
+          onSend={handleSend} 
           loading={loading}
         />
       </div>

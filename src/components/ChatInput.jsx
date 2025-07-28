@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import api from '@/lib/axios';
 import { FiMic, FiSend, FiPlus } from 'react-icons/fi';
@@ -72,8 +72,10 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
     fileInputRef.current?.click();
   };
 
+
+  
   return (
-    <div className="w-full border-t border-gray-300 bg-white px-4 py-3 md:px-6 sticky bottom-0 z-10 shadow-sm">
+    <div className="w-full border-t border-gray-300 bg-white px-4 py-3 md:px-6 fixed bottom-0 z-50 md:relative">
       <form
         onSubmit={handleSubmit}
         className="flex items-center gap-2 flex-wrap sm:flex-nowrap"
