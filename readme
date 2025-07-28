@@ -2,7 +2,7 @@
 
 This is the frontend for a modern, responsive AI Chat Application built with **Next.js** and **Tailwind CSS**. It provides a clean user interface for interacting with an AI, managing chat history, and authenticating users.
 
-**Live Demo:** [https://acciojob-assessment-frontend.vercel.app/](https://acciojob-assessment-frontend.vercel.app/)
+**Live Demo:** [https://acciojob-assessment-frontend.vercel.app/]
 
 ![Home page/login/register Screenshot](assets/chat-interface.png)
 ![Dashboard page Screenshot](assets/home-page.png)
