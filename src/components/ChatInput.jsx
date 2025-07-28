@@ -9,6 +9,7 @@ const VoiceRecorder = dynamic(() => import('./VoiceRecorder'), { ssr: false });
 const ChatInput = ({ input, setInput, onSend, loading }) => {
   const [showRecorder, setShowRecorder] = useState(false);
   const fileInputRef = useRef(null);
+  const inputFieldRef = useRef();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -72,7 +73,19 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
     fileInputRef.current?.click();
   };
 
+useEffect(() => {
+  const el = inputFieldRef.current;
+  if (!el) return;
 
+  const handleFocus = () => {
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  };
+
+  el.addEventListener('focus', handleFocus);
+  return () => el.removeEventListener('focus', handleFocus);
+}, []);
   
   return (
     <div className="w-full border-t border-gray-300 bg-white px-4 py-3 md:px-6 fixed bottom-0 z-50 md:relative">
@@ -101,6 +114,7 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
         {/* Text Input */}
         <input
           type="text"
+          ref={inputFieldRef}
           value={input ?? ''}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."

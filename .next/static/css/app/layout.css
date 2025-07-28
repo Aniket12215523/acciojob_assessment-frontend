@@ -968,6 +968,14 @@
     }
   }
 }
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+}
 @keyframes fade-in {
   from {
     opacity: 0;
