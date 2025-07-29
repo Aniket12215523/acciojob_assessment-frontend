@@ -5,13 +5,14 @@ import api from '@/lib/axios';
 import ModelSelector from './ModelSelector';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiMenu, FiX, FiHome } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiChevronLeft, FiChevronRight, FiSearch, FiPlus } from 'react-icons/fi';
 
 const Sidebar = ({ selectedModel, setSelectedModel }) => {
   const { user, token } = useAuth();
   const router = useRouter();
   const [sessions, setSessions] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Mobile sidebar state
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false); // Desktop sidebar state
   const [searchQuery, setSearchQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef([]);
@@ -108,8 +109,8 @@ const Sidebar = ({ selectedModel, setSelectedModel }) => {
 
   return (
     <>
-      {/* Toggle Button */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      {/* Mobile Header with Toggle and Home Button */}
+      <div className="md:hidden fixed top-4 left-4 right-4 z-50 flex justify-between items-center">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="p-2 bg-white shadow rounded-full"
@@ -117,19 +118,53 @@ const Sidebar = ({ selectedModel, setSelectedModel }) => {
         >
           {isOpen ? <FiX size={20} /> : <FiMenu size={20} />}
         </button>
+        
+        <button
+          className="p-2 bg-white shadow rounded-full text-gray-600 hover:text-black transition-colors duration-200"
+          onClick={() => router.push('/dashboard')}
+          title="Go to Dashboard"
+        >
+          <FiHome size={20} />
+        </button>
       </div>
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-white border-r p-4 shadow-lg z-40 transform transition-transform duration-300 ease-in-out
+        className={`fixed top-0 left-0 h-screen bg-white border-r shadow-lg z-40 transform transition-all duration-300 ease-in-out overflow-y-auto
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
-        md:translate-x-0 md:static md:block md:min-h-screen overflow-y-auto`}
+        md:translate-x-0 md:static md:block md:min-h-screen
+        ${isDesktopCollapsed ? 'md:w-16' : 'md:w-64'} w-64 p-4`}
       >
         <div className="flex flex-col justify-between h-full">
           <div>
-            <div className="flex items-center justify-end md:justify-start mb-4 h-8">
+            {/* Desktop Header with Home Icon and Desktop Toggle */}
+            <div className="hidden md:flex items-center justify-between mb-4 h-8">
               <button
-                className="text-gray-600 hover:text-black"
+                className="text-gray-600 hover:text-black transition-colors duration-200"
+                onClick={async () => {
+                  setIsOpen(false);
+                  router.push('/dashboard');
+                }}
+                title="Go to Dashboard"
+              >
+                <FiHome size={20} />
+              </button>
+              
+              {/* Desktop Toggle Button - Top Right of Sidebar */}
+              <button
+                onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)}
+                className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+                aria-label="Toggle Desktop Sidebar"
+                title={isDesktopCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              >
+                {isDesktopCollapsed ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
+              </button>
+            </div>
+
+            {/* Mobile Header - Only visible when sidebar is open */}
+            <div className="md:hidden flex items-center justify-end mb-4 h-8">
+              <button
+                className="text-gray-600 hover:text-black transition-colors duration-200"
                 onClick={async () => {
                   setIsOpen(false);
                   router.push('/dashboard');
@@ -140,76 +175,108 @@ const Sidebar = ({ selectedModel, setSelectedModel }) => {
               </button>
             </div>
 
-            {/* New Chat Button */}
-            <button
-              onClick={handleNewChat}
-              className="w-full bg-black text-white rounded-md py-2 mb-4 hover:bg-gray-800 transition"
-            >
-              + New Chat
-            </button>
-            <input
-              type="text"
-              placeholder="Search chats..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setActiveIndex(0);
-              }}
-              onKeyDown={handleKeyDown}
-              className="w-full px-3 py-1.5 rounded-md bg-white border border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
-            />
+            {/* Collapsed Sidebar Icons */}
+            {isDesktopCollapsed ? (
+              <div className="hidden md:flex flex-col items-center space-y-4">
+                {/* New Chat Icon */}
+                <button
+                  onClick={handleNewChat}
+                  className="p-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
+                  title="New Chat"
+                >
+                  <FiPlus size={18} />
+                </button>
+                
+                {/* Search Icon */}
+                <button
+                  onClick={() => setIsDesktopCollapsed(false)}
+                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition"
+                  title="Search Chats"
+                >
+                  <FiSearch size={18} />
+                </button>
+              </div>
+            ) : (
+              /* Expanded Sidebar Content */
+              <div className={`transition-opacity duration-300 ${
+                isDesktopCollapsed ? 'md:opacity-0 md:pointer-events-none md:hidden' : 'opacity-100'
+              }`}>
+                {/* New Chat Button */}
+                <button
+                  onClick={handleNewChat}
+                  className="w-full bg-black text-white rounded-md py-2 mb-4 hover:bg-gray-800 transition"
+                >
+                  + New Chat
+                </button>
+                
+                <input
+                  type="text"
+                  placeholder="Search chats..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setActiveIndex(0);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  className="w-full px-3 py-1.5 rounded-md bg-white border border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                />
 
-            <div className="mb-4 mt-4">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Library</h2>
-              <div className="text-gray-600 text-sm italic">Coming soon</div>
-            </div>
+                <div className="mb-4 mt-4">
+                  <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Library</h2>
+                  <div className="text-gray-600 text-sm italic">Coming soon</div>
+                </div>
 
-            <div className="mb-4">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Model</h2>
-              <ModelSelector
-                selectedModel={selectedModel}
-                onModelChange={setSelectedModel}
-              />
-            </div>
+                <div className="mb-4">
+                  <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Model</h2>
+                  <ModelSelector
+                    selectedModel={selectedModel}
+                    onModelChange={setSelectedModel}
+                  />
+                </div>
 
-            <div>
-              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Recent Chats</h2>
-              <ul className="space-y-2">
-                {filteredSessions.length > 0 ? (
-                  filteredSessions.map((session, idx) => (
-                    <li
-                      key={session._id}
-                      ref={(el) => (listRef.current[idx] = el)}
-                      className={`group bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md px-3 py-2 flex items-center justify-between transition duration-200 shadow-sm ${
-                        idx === activeIndex ? 'ring-2 ring-indigo-400' : ''
-                      }`}
-                    >
-                      <Link
-                        href={`/chat/${session.sessionId}`}
-                        className="text-sm text-gray-800 font-medium truncate max-w-[85%] group-hover:text-indigo-600"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {highlightMatch(getSessionTitle(session))}
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteSession(session._id)}
-                        className="text-gray-400 hover:text-red-500 text-xs transition-opacity duration-150 opacity-0 group-hover:opacity-100"
-                        title="Delete"
-                      >
-                        ✕
-                      </button>
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-xs text-gray-500 italic">No sessions</li>
-                )}
-              </ul>
-            </div>
+                <div>
+                  <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Recent Chats</h2>
+                  <ul className="space-y-2">
+                    {filteredSessions.length > 0 ? (
+                      filteredSessions.map((session, idx) => (
+                        <li
+                          key={session._id}
+                          ref={(el) => (listRef.current[idx] = el)}
+                          className={`group bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md px-3 py-2 flex items-center justify-between transition duration-200 shadow-sm ${
+                            idx === activeIndex ? 'ring-2 ring-indigo-400' : ''
+                          }`}
+                        >
+                          <Link
+                            href={`/chat/${session.sessionId}`}
+                            className="text-sm text-gray-800 font-medium truncate max-w-[85%] group-hover:text-indigo-600"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            {highlightMatch(getSessionTitle(session))}
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteSession(session._id)}
+                            className="text-gray-400 hover:text-red-500 text-xs transition-opacity duration-150 opacity-0 group-hover:opacity-100"
+                            title="Delete"
+                          >
+                            ✕
+                          </button>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-xs text-gray-500 italic">No sessions</li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="mt-8 text-center text-xs text-gray-400">
-            © {new Date().getFullYear()} My GPT Assessment App
-          </div>
+          {/* Footer - Only visible when expanded */}
+          {!isDesktopCollapsed && (
+            <div className="mt-8 text-center text-xs text-gray-400">
+              © {new Date().getFullYear()} My GPT Assessment App
+            </div>
+          )}
         </div>
       </div>
     </>

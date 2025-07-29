@@ -21,7 +21,7 @@ export default function VoiceRecorder({ sessionId, onTranscribed }) {
     formData.append('audio', blob, `voice-recording-${sessionId}.wav`);
 
     try {
-      const res = await api.post(`/sessions/${sessionId}/voice-upload`, formData, {
+      const res = await api.post(`/voice/sessions/${sessionId}/voice-upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -60,6 +60,8 @@ export default function VoiceRecorder({ sessionId, onTranscribed }) {
     }
     return () => clearInterval(interval);
   }, [document.querySelector("[data-status='recording']"), timer]);
+
+  console.log('SessionId in VoiceRecorder:', sessionId);
 
   return (
     <ReactMediaRecorder
