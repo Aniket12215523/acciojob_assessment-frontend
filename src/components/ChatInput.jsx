@@ -6,7 +6,8 @@ import { FiMic, FiSend, FiPlus } from 'react-icons/fi';
 
 const VoiceRecorder = dynamic(() => import('./VoiceRecorder'), { ssr: false });
 
-const ChatInput = ({ input, setInput, onSend, loading }) => {
+// Add sessionId to props
+const ChatInput = ({ input, setInput, onSend, loading, sessionId }) => {
   const [showRecorder, setShowRecorder] = useState(false);
   const fileInputRef = useRef(null);
   const inputFieldRef = useRef();
@@ -73,19 +74,26 @@ const ChatInput = ({ input, setInput, onSend, loading }) => {
     fileInputRef.current?.click();
   };
 
-useEffect(() => {
-  const el = inputFieldRef.current;
-  if (!el) return;
-
-  const handleFocus = () => {
-    setTimeout(() => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
+  // Handler for voice transcription
+  const handleVoiceTranscription = (transcription) => {
+    console.log('Voice transcribed:', transcription);
+    setInput(transcription);
+    setShowRecorder(false); // Close recorder after transcription
   };
 
-  el.addEventListener('focus', handleFocus);
-  return () => el.removeEventListener('focus', handleFocus);
-}, []);
+  useEffect(() => {
+    const el = inputFieldRef.current;
+    if (!el) return;
+
+    const handleFocus = () => {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    };
+
+    el.addEventListener('focus', handleFocus);
+    return () => el.removeEventListener('focus', handleFocus);
+  }, []);
   
   return (
     <div className="w-full border-t border-gray-300 bg-white px-4 py-3 md:px-6 fixed bottom-0 z-50 md:relative">
@@ -114,7 +122,7 @@ useEffect(() => {
         {/* Text Input */}
         <input
           type="text"
-            ref={inputFieldRef}
+          ref={inputFieldRef}
           value={input ?? ''}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
@@ -124,11 +132,13 @@ useEffect(() => {
         {/* Mic Button */}
         <button
           type="button"
-          className="p-2 rounded-full hover:bg-gray-200 transition"
+          className={`p-2 rounded-full hover:bg-gray-200 transition ${
+            showRecorder ? 'bg-red-100' : ''
+          }`}
           onClick={() => setShowRecorder(!showRecorder)}
           title="Record voice"
         >
-          <FiMic size={20} className="text-gray-600" />
+          <FiMic size={20} className={showRecorder ? "text-red-600" : "text-gray-600"} />
         </button>
 
         {/* Send Button */}
@@ -145,9 +155,12 @@ useEffect(() => {
       </form>
 
       {/* Voice Recorder */}
-      {showRecorder && (
+      {showRecorder && sessionId && (
         <div className="mt-2 bg-gray-100 p-3 rounded-md">
-          <VoiceRecorder onText={setInput} />
+          <VoiceRecorder 
+            sessionId={sessionId}
+            onTranscribed={handleVoiceTranscription}
+          />
         </div>
       )}
     </div>

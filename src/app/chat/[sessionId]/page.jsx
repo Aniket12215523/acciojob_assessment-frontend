@@ -78,6 +78,7 @@ const handleSend = async (messageObj) => {
           setInput={setInput}
           onSend={handleSend}
           loading={loading}
+          sessionId={sessionId} 
         />
       </div>
     </div>

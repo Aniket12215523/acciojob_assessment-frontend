@@ -7,6 +7,9 @@ const modelOptions = [
   { label: 'LLaMA 3 (Groq)', value: 'llama3-8b-8192' },
   { label: 'Mixtral (Groq)', value: 'mixtral-8x7b-32768' },
   { label: 'Gemma 7B (Groq)', value: 'gemma-7b-it' },
+  
+  { label: 'Gemini 1.5 Flash (Google)', value: 'gemini-1.5-flash' },
+  { label: 'Gemini 2.0 Flash (Google)', value: 'gemini-2.0-flash' },
 
   // OpenRouter models (commented for future use)
   // { label: 'GPT-4o Mini (OpenRouter)', value: 'gpt-4o-mini' },
