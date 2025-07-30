@@ -1,47 +1,15 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
-
-const CopyIcon = ({ className }) => (
-  <svg
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M8 17h8M8 13h8M8 9h8M5 19h14v-14H5v14z" />
-  </svg>
-);
-
-const TickIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
+import React, { useRef, useEffect } from 'react';
 
 export default function ChatMessages({ messages }) {
   const chatEndRef = useRef(null);
-  const [copiedIndex, setCopiedIndex] = useState(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleCopy = (text, index) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
-    });
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
   };
 
   return (
@@ -60,16 +28,10 @@ export default function ChatMessages({ messages }) {
               <div className="relative">
                 <div className="text-sm sm:text-base">{msg.message}</div>
                 <button
-                  onClick={() => handleCopy(msg.message, `msg-${index}`)}
-                  className="absolute bottom-1 right-1 bg-gray-300 hover:bg-gray-400 text-black p-1 rounded shadow flex items-center justify-center"
-                  aria-label="Copy message"
-                  type="button"
+                  onClick={() => handleCopy(msg.message)}
+                  className="absolute bottom-1 right-1 text-xs bg-gray-300 hover:bg-gray-400 text-black px-2 py-0.5 rounded shadow"
                 >
-                  {copiedIndex === `msg-${index}` ? (
-                    <TickIcon className="w-4 h-4" />
-                  ) : (
-                    <CopyIcon className="w-4 h-4" />
-                  )}
+                  Copy
                 </button>
               </div>
             )}
@@ -88,14 +50,11 @@ export default function ChatMessages({ messages }) {
 
                 {/* Image Preview */}
                 {msg.file.mimetype?.startsWith('image/') && (
-                  <div
-                    className="mt-2 rounded border mt-1 p-1" 
-                    style={{ backgroundColor: '#6b7280' /* elegant gray/blue */ }}
-                  >
+                  <div className="mt-2">
                     <img
                       src={msg.file.url}
                       alt="Uploaded preview"
-                      className="w-40 sm:w-52 h-auto rounded"
+                      className="w-40 sm:w-52 h-auto rounded border mt-1"
                     />
                   </div>
                 )}
@@ -103,15 +62,10 @@ export default function ChatMessages({ messages }) {
                 {/* Video Preview */}
                 {msg.file.mimetype?.startsWith('video/') && (
                   <>
-                    <div
-                      className="mt-2 rounded overflow-hidden"
-                      style={{ backgroundColor: '#6b7280' /* elegant gray/blue */ }}
-                    >
-                      <video controls className="w-full rounded">
-                        <source src={msg.file.url} type={msg.file.mimetype} />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
+                    <video controls className="mt-2 w-full rounded">
+                      <source src={msg.file.url} type={msg.file.mimetype} />
+                      Your browser does not support the video tag.
+                    </video>
 
                     {/* AI Frame Output */}
                     {Array.isArray(msg.file.frames) && msg.file.frames.length > 0 && (
@@ -124,16 +78,10 @@ export default function ChatMessages({ messages }) {
                           >
                             <div className="text-gray-800 text-sm flex-1">{frameText}</div>
                             <button
-                              onClick={() => handleCopy(frameText, `frame-${index}-${i}`)}
-                              className="text-[11px] bg-gray-300 hover:bg-gray-400 text-black px-2 py-0.5 rounded shrink-0 flex items-center justify-center"
-                              aria-label="Copy frame analysis"
-                              type="button"
+                              onClick={() => handleCopy(frameText)}
+                              className="text-[11px] bg-gray-300 hover:bg-gray-400 text-black px-2 py-0.5 rounded shrink-0"
                             >
-                              {copiedIndex === `frame-${index}-${i}` ? (
-                                <TickIcon className="w-4 h-4" />
-                              ) : (
-                                <CopyIcon className="w-4 h-4" />
-                              )}
+                              Copy
                             </button>
                           </div>
                         ))}
@@ -147,16 +95,10 @@ export default function ChatMessages({ messages }) {
                   <div className="mt-3 text-xs bg-white border p-2 rounded relative">
                     <pre className="whitespace-pre-wrap">{msg.file.content.slice(0, 500)}</pre>
                     <button
-                      onClick={() => handleCopy(msg.file.content, `content-${index}`)}
-                      className="absolute top-1 right-1 text-[11px] bg-gray-300 hover:bg-gray-400 text-black px-2 py-0.5 rounded flex items-center justify-center"
-                      aria-label="Copy transcription"
-                      type="button"
+                      onClick={() => handleCopy(msg.file.content)}
+                      className="absolute top-1 right-1 text-[11px] bg-gray-300 hover:bg-gray-400 text-black px-2 py-0.5 rounded"
                     >
-                      {copiedIndex === `content-${index}` ? (
-                        <TickIcon className="w-4 h-4" />
-                      ) : (
-                        <CopyIcon className="w-4 h-4" />
-                      )}
+                      Copy
                     </button>
                   </div>
                 )}
