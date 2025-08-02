@@ -45,8 +45,7 @@ export default function ChatMessages({ messages }) {
   };
 
   return (
-    // MODIFIED: Removed flex-1, overflow-y-auto, and h-[85vh] to let the parent page control layout.
-    <div className="px-2 sm:px-4 py-4 bg-white rounded-lg shadow">
+    <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 bg-white rounded-lg shadow h-[85vh]">
       {messages.map((msg, index) => (
         <div
           key={index}
@@ -62,7 +61,7 @@ export default function ChatMessages({ messages }) {
           >
             {msg.message && <div className="text-sm sm:text-base">{msg.message}</div>}
 
-            {/* File messages and previews */}
+            {/* File messages unchanged */}
             {msg.file?.url && (
               <div className="mt-3 text-sm">
                 <a

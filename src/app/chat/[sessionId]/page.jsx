@@ -29,64 +29,56 @@ export default function ChatPage() {
     };
     fetchHistory();
   }, [sessionId]);
+const handleSend = async (messageObj) => {
+  const { message, file } = messageObj;
 
-  const handleSend = async (messageObj) => {
-    const { message, file } = messageObj;
-
-    const userMessage = {
-      sender: 'user',
-      message: message,
-      ...(file ? { file } : {}),
-    };
-
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setInput('');
-    setLoading(true);
-
-    try {
-      const payload = {
-        sessionId,
-        message: file?.content || message,
-        selectedModel,
-        userId: user._id,
-      };
-
-      const res = await api.post('/chat/send', payload);
-      setMessages(res.data.history);
-    } catch (err) {
-      console.error('Send failed:', err);
-    } finally {
-      setLoading(false);
-    }
+  const userMessage = {
+    sender: 'user',
+    message: message, // e.g. "📄 filename.pdf"
+    ...(file ? { file } : {}),
   };
 
+  const updatedMessages = [...messages, userMessage];
+  setMessages(updatedMessages);
+  setInput('');
+  setLoading(true);
+
+  try {
+    // If the file has content, send it instead of the label (e.g. "📄 filename")
+    const payload = {
+      sessionId,
+      message: file?.content || message, 
+      selectedModel,
+      userId: user._id,
+    };
+
+    const res = await api.post('/chat/send', payload);
+    setMessages(res.data.history);
+  } catch (err) {
+    console.error('Send failed:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   return (
-    // Root container: Uses flex only on desktop (md and up)
-    <div className="relative md:flex h-screen bg-gray-50">
+    <div className="flex h-screen">
       <Sidebar
         selectedModel={selectedModel}
         setSelectedModel={setSelectedModel}
       />
-
-      {/* Main content area takes up remaining space and handles its own layout */}
-      <div className="flex flex-col flex-1 h-screen overflow-hidden">
-        {/* Wrapper for messages that handles scrolling.
-            Padding is adjusted for mobile vs. desktop:
-            - pt-20: Adds space for the fixed mobile header.
-            - pb-28: Adds space for the fixed mobile chat input.
-            - md:p-4: Resets padding for a simpler layout on desktop.
-        */}
-        <div className="flex-1 overflow-y-auto px-4 pt-20 pb-28 md:p-4">
-          <ChatMessages messages={messages} />
-        </div>
+      <div className="flex flex-col flex-1 p-4 overflow-hidden">
+        <div className="flex-1 overflow-y-auto pb-28 md:pb-4">
+  <ChatMessages messages={messages} />
+</div>
 
         <ChatInput
           input={input}
           setInput={setInput}
           onSend={handleSend}
           loading={loading}
-          sessionId={sessionId}
+          sessionId={sessionId} 
         />
       </div>
     </div>
