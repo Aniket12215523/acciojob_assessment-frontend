@@ -298,7 +298,7 @@ const Sidebar = ({ selectedModel, setSelectedModel }) => {
             <div className="pt-4">
               <div className="flex justify-center mb-2">
                 <button
-                  className="flex items-center px-3 py-2 rounded-md bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 text-sm font-semibold transition"
+                  className="flex items-center px-1 py-2 rounded-md bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 text-sm font-semibold transition"
                   title="Logout"
                   onClick={() => {
                     logout && logout();
